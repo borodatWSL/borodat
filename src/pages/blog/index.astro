@@ -1,0 +1,130 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) =>
+    new Date(b.data.pubDate ?? b.data.updatedDate ?? 0).getTime() -
+    new Date(a.data.pubDate ?? a.data.updatedDate ?? 0).getTime()
+);
+---
+
+<Layout>
+  <header class="fixed top-0 z-50 w-full border-b border-gray-800/80 bg-black/60 backdrop-blur-md">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+      <a href="/" class="group flex items-center font-bold text-white tracking-tight transition-colors hover:text-emerald-400">
+        <span class="mr-2 text-xl transition-transform group-hover:-translate-x-1">←</span>
+        <span class="text-xl">Borodat</span> 
+        <span class="hidden text-sm text-gray-400 sm:inline ml-2">| На главную</span>
+      </a>
+      
+      <div class="flex items-center gap-4 md:gap-6">
+        <a 
+          href="https://t.me/neyroutine_bot?start=site" 
+          target="_blank" 
+          class="rounded-lg bg-emerald-500/10 px-4 py-2 sm:px-5 sm:py-2 text-sm font-bold text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500 hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(16,185,129,0.1)] hover:shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+        >
+          Аудит процессов
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="relative min-h-screen overflow-hidden bg-black text-gray-200 pt-24">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0 -z-10">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.1),transparent_60%),radial-gradient(circle_at_bottom,_rgba(56,189,248,0.05),transparent_55%)]" />
+      <div class="absolute inset-0 bg-[linear-gradient(to_right,rgba(31,41,55,0.4)_1px,transparent_1px),linear-gradient(to_bottom,rgba(31,41,55,0.4)_1px,transparent_1px)] bg-[size:60px_60px] opacity-20" />
+      <div class="absolute -left-24 top-40 h-[500px] w-[500px] rounded-full bg-emerald-900/10 blur-[120px]" />
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+      
+      <header class="mb-12 sm:mb-16 border-b border-gray-800 pb-12">
+        <div class="max-w-4xl">
+          <p class="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-emerald-500">
+            Блог · Разборы кейсов
+          </p>
+          <h1 class="text-4xl font-extrabold tracking-tight text-white md:text-6xl mb-6 leading-tight">
+            Как я вырезаю рутину из <br class="hidden md:block" />
+            <span class="inline-block bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">B2B-процессов.</span>
+          </h1>
+          <p class="text-lg text-gray-400 md:text-xl leading-relaxed mb-8 max-w-3xl">
+            Разборы реальных внедрений: алгоритмы, n8n, API, ИИ-агенты и цифры до и после. Никакого маркетингового тумана — только техническое мясо.
+          </p>
+
+          <a 
+            href="https://www.youtube.com/@Borodatt" 
+            target="_blank" 
+            class="group inline-flex w-fit items-center gap-3 rounded-2xl bg-white/5 px-6 py-4 text-base font-bold text-white border border-white/10 hover:bg-[#FF0000] hover:border-[#FF0000] hover:shadow-[0_0_30px_rgba(255,0,0,0.4)] transition-all duration-300"
+          >
+            <svg class="h-8 w-8 text-[#FF0000] group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.769-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd"/></svg>
+            <span>Смотреть на YouTube</span>
+          </a>
+        </div>
+      </header>
+
+      {posts.length === 0 ? (
+        <div class="rounded-3xl border border-gray-800 bg-gray-900/50 p-10 text-center backdrop-blur-sm">
+          <p class="text-lg text-gray-400">
+            Скоро здесь появятся первые кейсы. Если хотите обсудить ваш проект уже сейчас — <a href="https://t.me/neyroutine_bot?start=site" class="text-emerald-400 underline hover:text-emerald-300">напишите моему боту-архитектору</a>.
+          </p>
+        </div>
+      ) : (
+        <section class="grid gap-8 md:grid-cols-2 lg:grid-cols-3" aria-label="Список кейсов">
+          {posts.map((post) => {
+            const { title, description, pubDate } = post.data as {
+              title: string;
+              description?: string;
+              pubDate?: Date;
+            };
+
+            const href = `/blog/${post.slug}/`;
+
+            const formattedDate = pubDate
+              ? new Date(pubDate).toLocaleDateString("ru-RU", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              : "";
+
+            return (
+              <article class="group flex flex-col rounded-3xl border border-gray-800 bg-gray-900/50 p-8 transition-all duration-300 hover:-translate-y-2 hover:border-emerald-500/50 hover:shadow-[0_15px_40px_rgba(16,185,129,0.15)]">
+                
+                <div class="mb-6 flex items-center justify-between gap-3 border-b border-gray-800 pb-4">
+                  <p class="text-xs font-bold uppercase tracking-[0.2em] text-emerald-500">
+                    Кейс
+                  </p>
+                  {formattedDate && (
+                    <time datetime={pubDate?.toISOString()} class="font-mono text-sm text-gray-500">
+                      {formattedDate}
+                    </time>
+                  )}
+                </div>
+
+                <h2 class="text-2xl font-bold tracking-tight text-white mb-4">
+                  <a href={href} class="hover:text-emerald-400 transition-colors">
+                    {title}
+                  </a>
+                </h2>
+
+                {description && (
+                  <p class="mb-8 text-base text-gray-400 leading-relaxed line-clamp-3">
+                    {description}
+                  </p>
+                )}
+
+                <div class="mt-auto pt-4">
+                  <a href={href} class="inline-flex items-center font-bold text-emerald-400 hover:text-emerald-300 transition-colors">
+                    Читать разбор
+                    <span class="ml-2 text-xl transition-transform group-hover:translate-x-1">→</span>
+                  </a>
+                </div>
+              </article>
+            );
+          })}
+        </section>
+      )}
+    </div>
+  </main>
+</Layout>
